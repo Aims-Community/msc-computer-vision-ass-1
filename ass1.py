@@ -45,7 +45,7 @@ def create_panorama(img1_path, img2_path):
             
     print(f"Good matches after Lowe's Ratio Test: {len(good_matches)}")
 
-    # Optional: Visualize matching keypoints
+    # Visualize matching keypoints
     img_matches = cv2.drawMatches(img1, kp1, img2, kp2, good_matches[:50], None, 
                                   flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     cv2.imwrite('matches.jpg', img_matches)
@@ -70,7 +70,6 @@ def create_panorama(img1_path, img2_path):
     panorama = cv2.warpPerspective(img1, H, (width, height))
     
     # Place image 2 onto the canvas (assuming img2 is the base frame here)
-    # Note: Depending on your input ordering, you may need to adjust the placement or invert H
     panorama[0:img2.shape[0], 0:img2.shape[1]] = img2
 
     # Crop trailing black pixels to clean up the canvas
@@ -83,5 +82,5 @@ def create_panorama(img1_path, img2_path):
     cv2.imwrite('panorama_result.jpg', panorama_cropped)
     print("Panorama generated successfully and saved as 'panorama_result.jpg'")
 
-# Execute code (Replace with your actual image file names)
+# Execute code with images from the testImages directory
 create_panorama('testImages/left.png', 'testImages/right.png')

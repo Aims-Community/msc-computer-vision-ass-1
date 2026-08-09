@@ -23,7 +23,7 @@ The assignment is executed in 7 consecutive steps, outlined below with their tec
 * **Mechanism:** A Homography matrix ($H$) is a $3 \\times 3$ projective transformation matrix that maps coordinates from one 2D image plane to another ($x_2 = H x_1$). Because the initial match set always contains false positives (outliers), **RANSAC (RANdom Sample Consensus)** is employed. It iteratively:
   1. Selects 4 random matching pairs (the minimum required to solve for 8 degrees of freedom).
   2. Computes a trial homography matrix.
-  3. Validates the matrix against all remaining matches, tallying the number of "inliers" falling within a geometric distance threshold (e.g., 5 pixels).
+  3. Validates the matrix against all remaining matches, tallying the number of "inliers" falling within a geometric distance threshold. For instance, 5 pixels.
   The homography matrix with the maximum number of consensus inliers is selected as the optimal model.
 
 ### 6. Produce a Panorama
@@ -31,10 +31,10 @@ The assignment is executed in 7 consecutive steps, outlined below with their tec
 
 ### 7. Analyze Failure Cases
 Even robust SIFT + RANSAC frameworks fail under specific environmental and geometric bounds:
-* **Textureless / Low-Contrast Environments:** Scenes dominated by featureless surfaces (e.g., blank walls, smooth skies, heavy fog) do not yield sufficient local gradients. SIFT fails to extract keypoints, preventing homography computation entirely.
+* **Textureless / Low-Contrast Environments:** Scenes dominated by featureless surfaces such as blank walls, smooth skies, and heavy fog do not yield sufficient local gradients. SIFT fails to extract keypoints, preventing homography computation entirely.
 * **Repetitive Patterns (Perceptual Ambiguity):** Structures like building facades with identical window grids, fences, or tiling cause multiple keypoints to yield nearly identical descriptor vectors. Consequently, Lowe's Ratio Test filters them out as ambiguous, leaving insufficient data for RANSAC.
 * **Geometric Parallax (Translational Camera Movements):** Pure homography strictly assumes either a completely flat 2D scene or that the camera underwent pure rotation around its optical center. If the camera physically translates between shots, objects at varying depths shift relative to each other (parallax), creating severe blending ghosts and stitch misalignments.
-* **Dynamic / Moving Elements:** If elements change position within the overlapping zone between shots (e.g., moving pedestrians or cars), the system will either generate dual artifacts (ghosts), cut the objects in half, or discard the regions as outliers during RANSAC.
+* **Dynamic / Moving Elements:** If elements change position within the overlapping zone between shots such as moving pedestrians or cars, the system will either generate dual artifacts (ghosts), cut the objects in half, or discard the regions as outliers during RANSAC.
 
 ---
 
