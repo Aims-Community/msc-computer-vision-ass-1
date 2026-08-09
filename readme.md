@@ -8,9 +8,11 @@ The assignment is executed in 7 consecutive steps, outlined below with their tec
 
 ### 1. Detect SIFT Features
 * **Mechanism:** The Scale-Invariant Feature Transform (SIFT) algorithm applies a Difference-of-Gaussians (DoG) filter across multiple scale spaces to identify highly stable local extrema (points of interest such as corners, edges, and high-contrast vertices). These keypoints are selected because they are uniquely identifiable and invariant to scale and rotation.
+Our implementation detected 35847 keypoints in left image and 27252 in right image.
 
 ### 2. Extract Descriptors
-* **Mechanism:** For every detected keypoint, SIFT computes the gradient magnitude and orientation within its local neighborhood. This localized gradient distribution is mapped into an 8-bin orientation histogram across a $4 \\times 4$ grid, culminating in a highly distinctive **128-dimensional descriptor vector** for each keypoint. These vectors remain robust against changes in illumination, noise, and 3D viewpoint alterations.
+* **Mechanism:** For every detected keypoint, SIFT computes the gradient magnitude and orientation within its local neighborhood. This localized gradient distribution is mapped into an 8-bin orientation histogram across a 4x4 grid, culminating in a highly distinctive **128-dimensional descriptor vector** for each keypoint. These vectors remain robust against changes in illumination, noise, and 3D viewpoint alterations.
+
 
 ### 3. Perform Matching
 * **Mechanism:** To correlate keypoints between the two images, we compute the Euclidean distance ($L_2$ norm) across their respective 128-dimensional descriptor spaces. A Brute-Force Matcher combined with $k$-Nearest Neighbors ($k$-NN where $k=2$) fetches the two closest matching features in the target image for each feature in the source image.
@@ -18,6 +20,8 @@ The assignment is executed in 7 consecutive steps, outlined below with their tec
 ### 4. Apply Lowe's Ratio Test
 * **Mechanism:** To filter out false matches resulting from structural noise or ambiguous background patterns, Lowe's Ratio Test evaluates the uniqueness of a match. For a given keypoint, if the distance to the closest match ($m$) is not significantly smaller than the distance to the second-closest match ($n$), the match is rejected as ambiguous. The standard filtering threshold is defined as:
   $$\\frac{\\text{Distance}(m)}{\\text{Distance}(n)} < 0.75$$
+  The number of dood matches after Lowe's Ratio Test is 1416
+  The file "matched.jpg" displays an image of matching features in left and right images.
 
 ### 5. Estimate Homography using RANSAC
 * **Mechanism:** A Homography matrix ($H$) is a $3 \\times 3$ projective transformation matrix that maps coordinates from one 2D image plane to another ($x_2 = H x_1$). Because the initial match set always contains false positives (outliers), **RANSAC (RANdom Sample Consensus)** is employed. It iteratively:
@@ -25,9 +29,14 @@ The assignment is executed in 7 consecutive steps, outlined below with their tec
   2. Computes a trial homography matrix.
   3. Validates the matrix against all remaining matches, tallying the number of "inliers" falling within a geometric distance threshold. For instance, 5 pixels.
   The homography matrix with the maximum number of consensus inliers is selected as the optimal model.
+  The Estimated Homography Matrix is
+ [[ 1.71029256e+00  1.41241697e-02 -2.14159117e+03]
+ [ 1.63690188e-01  1.48206973e+00 -2.76840963e+02]
+ [ 2.48972525e-04 -7.62961926e-06  1.00000000e+00]]
 
 ### 6. Produce a Panorama
 * **Mechanism:** The source image is transformed into the coordinate space of the destination canvas using `cv2.warpPerspective` with the calculated homography matrix $H$. The second image is then laid down as the anchor frame. Finally, the canvas is automatically cropped to remove extraneous black borders generated during the geometric warping process.
+The Panorama image generated is save as panarama_result.jpg
 
 ### 7. Analyze Failure Cases
 Even robust SIFT + RANSAC frameworks fail under specific environmental and geometric bounds:
